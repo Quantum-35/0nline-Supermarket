@@ -1,7 +1,8 @@
 const path = require('path');
-
 const express = require('express');
 const bodyParser = require('body-parser');
+
+const pageNotFound = require('./controllers/error');
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -16,8 +17,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
-app.use((req, res, next) => {
-    res.status(404).render('404',{PageTitle: 'Not Found Page'});
-});
+app.use(pageNotFound.get404);
 
 app.listen(5000, () => console.log("Server runing at PORT 5000"));
