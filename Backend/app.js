@@ -1,9 +1,9 @@
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const pageNotFound = require('./controllers/error');
-const mongoConnect = require('./util/database').mongoConnect;
 const User = require('./models/user');
 
 const app = express();
@@ -17,9 +17,9 @@ const shopRoutes = require('./routes/shop');
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => {
-    User.findById('5c3806c3cfe52a8cf24adbca')
+    User.findById('5c385e52f665b125c3f74a77')
     .then(user => {
-        req.user = new User(user.name, user.email, user.cart, user._id);
+        req.user = user;
         next();
     })
     .catch(err => console.log(err));
@@ -30,7 +30,23 @@ app.use(shopRoutes);
 
 app.use(pageNotFound.get404);
 
-mongoConnect(() => {
+mongoose .connect('mongodb://localhost:27017/onlineMarket', { useNewUrlParser: true } )
+.then(results => {
+    User.findOne().then(user => {
+        if(!user) {
+            const user = new User({
+                email: 'quantum@gmail.com',
+                name: 'Quantum Computing',
+                cart: {
+                    items: []
+                }
+            });
+            user.save();
+        }
+    })
     app.listen(5000, () => console.log("Server runing at PORT 5000"));
-});
+})
+.catch(err => console.log(err))
+
+
 

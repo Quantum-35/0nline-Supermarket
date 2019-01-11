@@ -8,10 +8,10 @@
                 <ul>
                     <% orders.map(order => {%>
                         <li>
-                            <h1><%= order.id%></h1>
+                            <h1><%= order.user._id%></h1>
                             <ul>
                                 <% order.products.map(orderList => {%>
-                                    <li><%= orderList.title%>(<%= orderList.orderItem.quantity%>)</li>
+                                    <li><%= orderList.product.title%>(<%= orderList.quantity%>)</li>
                                 <%})%>
                             </ul>
                         </li>

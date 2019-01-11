@@ -7,10 +7,10 @@
                 <ul>
                 <% cartProducts.map(p => {%>
                         <li>
-                                <%= p.title%> (<%=p.cartItem.quantity%>)
+                                <%= p.productId.title%> (<%=p.quantity%>)
                                 <form action="/cart-delete-item" method="POST">
                                         <button type="submit" class="btn">Delete</button>
-                                        <input type="hidden" name="productId" value="<%=p.id%>">
+                                        <input type="hidden" name="productId" value="<%=p.productId._id%>">
                                 </form>
                         </li>
                 <%})%>
