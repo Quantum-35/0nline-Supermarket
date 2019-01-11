@@ -3,32 +3,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const pageNotFound = require('./controllers/error');
-const sequelize = require('./util/database');
+const mongoConnect = require('./util/database').mongoConnect;
 const User = require('./models/user');
-const Product = require('./models/product');
-const Cart = require('./models/cart');
-const CartItem = require('./models/cartItem');
-const Order = require('./models/order');
-const OrderItem = require('./models/orderItems');
 
 const app = express();
 app.set('view engine', 'ejs');
 app.set('views', 'views');
-
-Product.belongsTo(User, {
-    constraints: true,
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
-});
-User.hasMany(Product);
-User.hasOne(Cart);
-Cart.belongsTo(User); 
-Cart.belongsToMany(Product, {through: CartItem});
-Product.belongsToMany(Cart, {through: CartItem});
-Order.belongsTo(User);
-User.hasMany(Order);
-Order.belongsToMany(Product, {through: OrderItem});
-
 
 
 const adminRoutes = require('./routes/admin');
@@ -37,9 +17,9 @@ const shopRoutes = require('./routes/shop');
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => {
-    User.findById(1)
+    User.findById('5c3806c3cfe52a8cf24adbca')
     .then(user => {
-        req.user = user;
+        req.user = new User(user.name, user.email, user.cart, user._id);
         next();
     })
     .catch(err => console.log(err));
@@ -50,26 +30,7 @@ app.use(shopRoutes);
 
 app.use(pageNotFound.get404);
 
-// sequelize.sync({force: true})
-sequelize.sync()
-.then(() => {
-    User.findById(1);
-}).then(user => {
-    if(!user) {
-       return User.create({
-            name: "Quantum Computing", 
-            email: "quantumcomputing@quantum.com",
-            password: "H3ll0W0rldKenya"
-        });
-    }
-    return user;
-})
-.then(user => {
-    return user.createCart()
-})
-.then(cart => {
+mongoConnect(() => {
     app.listen(5000, () => console.log("Server runing at PORT 5000"));
-})
-.catch(err => {
-    console.log(err)
 });
+
